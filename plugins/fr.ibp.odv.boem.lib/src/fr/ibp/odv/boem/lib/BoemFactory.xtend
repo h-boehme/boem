@@ -182,11 +182,17 @@ class BoemFactory {
 		return uri !== null && INTERNAL_URI_SCHEME.equals(uri.scheme)
 	}
 
+	package static val BOEH_BASE = URI.createURI(INTERNAL_URI_SCHEME + "://" )
+	
 	/**
 	 * Returns the id stored in the BOEM {@link URI}
 	 */
 	package static def String getBoemId(URI uri) {
-		return uri.authority;
+		val result = uri.deresolve(BOEH_BASE).toString
+		if(result.startsWith("//")) {
+			return result.substring(2)
+		}
+		return result
 	}
 
 }

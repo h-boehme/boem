@@ -82,6 +82,34 @@ class Boems {
 		return eObject.buildTree(new HashMap)
 	}
 
+	def static <T extends EObject> T buildTree2a(T eObject, Map<String, EObject> mappedElements)  {
+		// Computes the map of ids
+		val contentIte = eObject.getCompleteIterator
+		while (contentIte.hasNext) {
+			val next = contentIte.next
+			var String id = next.getId
+			if (id !== null) {
+				if (mappedElements.containsKey(id) && mappedElements.get(id) != next) {
+					throw new IllegalStateException("Duplicated id '" + id + "'");
+				}
+				mappedElements.put(id, next)
+			}
+		}
+		
+		return eObject
+	}
+
+	def static <T extends EObject> ModelAccessor<T> buildTree2b(T eObject, Map<String, EObject> mappedElements) {
+		// Resolves all references using the computed map
+		val contentIte2 = eObject.getCompleteIterator
+		while (contentIte2.hasNext) {
+			val next = contentIte2.next
+			next.replaceDelayedFeatureReferences(mappedElements)
+		}
+
+		return new ModelAccessor(eObject, mappedElements)
+	}
+
 	package def static <T extends EObject> ModelAccessor<T> buildTree(T eObject, Map<String, EObject> mappedElements) {
 		// Computes the map of ids
 		val contentIte = eObject.getCompleteIterator
