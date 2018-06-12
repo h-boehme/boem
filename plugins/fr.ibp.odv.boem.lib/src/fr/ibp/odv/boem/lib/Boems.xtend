@@ -82,13 +82,16 @@ class Boems {
 		return eObject.buildTree(new HashMap)
 	}
 
-	def static <T extends EObject> T buildTree2a(T eObject, Map<String, EObject> mappedElements)  {
+	def static <T extends EObject> T buildTree2a(T eObject, Map<String, EObject> mappedElements, String prefix)  {
 		// Computes the map of ids
 		val contentIte = eObject.getCompleteIterator
 		while (contentIte.hasNext) {
 			val next = contentIte.next
 			var String id = next.getId
 			if (id !== null) {
+				if(prefix !== null) {
+					id = prefix + id;
+				}
 				if (mappedElements.containsKey(id) && mappedElements.get(id) != next) {
 					throw new IllegalStateException("Duplicated id '" + id + "'");
 				}
@@ -99,12 +102,12 @@ class Boems {
 		return eObject
 	}
 
-	def static <T extends EObject> ModelAccessor<T> buildTree2b(T eObject, Map<String, EObject> mappedElements) {
+	def static <T extends EObject> ModelAccessor<T> buildTree2b(T eObject, Map<String, EObject> mappedElements, String prefix) {
 		// Resolves all references using the computed map
 		val contentIte2 = eObject.getCompleteIterator
 		while (contentIte2.hasNext) {
 			val next = contentIte2.next
-			next.replaceDelayedFeatureReferences(mappedElements)
+			next.replaceDelayedFeatureReferences(mappedElements, prefix)
 		}
 
 		return new ModelAccessor(eObject, mappedElements)
@@ -127,7 +130,7 @@ class Boems {
 		val contentIte2 = eObject.getCompleteIterator
 		while (contentIte2.hasNext) {
 			val next = contentIte2.next
-			next.replaceDelayedFeatureReferences(mappedElements)
+			next.replaceDelayedFeatureReferences(mappedElements, null)
 		}
 
 		return new ModelAccessor(eObject, mappedElements)
@@ -150,13 +153,13 @@ class Boems {
 		return ma
 	}
 
-	private static def replaceDelayedFeatureReferences(EObject eObject, Map<String, EObject> ids) {
+	private static def replaceDelayedFeatureReferences(EObject eObject, Map<String, EObject> ids, String prefix) {
 		for (EReference ref : eObject.eClass.EAllReferences.stream.filter[!it.isDerived].collect(Collectors.toList)) {
-			eObject.handleEReference(ref, ids)
+			eObject.handleEReference(ref, ids, prefix)
 		}
 	}
 
-	private static def handleEReference(EObject eObject, EReference ref, Map<String, EObject> ids) {
+	private static def handleEReference(EObject eObject, EReference ref, Map<String, EObject> ids, String prefix) {
 		var Collection<InternalEObject> values;
 		if (ref.isMany) {
 			values = (eObject.eGet(ref, false) as InternalEList<InternalEObject>).basicList
@@ -168,7 +171,10 @@ class Boems {
 				val proxy = target.eProxyURI
 				if (proxy.isIdBoemURI()) {
 					val id = proxy.boemId;
-					val realTarget = ids.get(id);
+					var realTarget = ids.get(id);
+					if(realTarget === null && prefix !== null) {
+						realTarget = ids.get(prefix + id);
+					}
 					if (realTarget !== null) {
 						if (ref.EType.isInstance(realTarget)) {
 							eObject.replaceNonResolving(ref, target, realTarget)
