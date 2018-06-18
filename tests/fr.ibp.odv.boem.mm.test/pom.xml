@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>fr.ibp.odv.boem</groupId>
 		<artifactId>fr.ibp.odv.boem.parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.1-SNAPSHOT</version>
 		<relativePath>../../fr.ibp.odv.boem.parent/</relativePath>
 	</parent>
 

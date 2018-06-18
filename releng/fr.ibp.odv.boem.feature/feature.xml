@@ -2,7 +2,7 @@
 <feature
       id="fr.ibp.odv.boem.feature"
       label="Boem Feature"
-      version="1.0.0.qualifier">
+      version="1.0.1.qualifier">
 
    <description url="https://github.com/i-BP/boem">
       Builder Of EMF Models
