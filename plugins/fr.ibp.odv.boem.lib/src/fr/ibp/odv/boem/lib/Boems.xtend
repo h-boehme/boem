@@ -31,6 +31,7 @@ import org.eclipse.emf.ecore.util.FeatureMapUtil
 import org.eclipse.emf.ecore.util.InternalEList
 
 import static extension fr.ibp.odv.boem.lib.BoemFactory.*
+import java.util.ArrayList
 
 /**
  * Utility class that contains the BOEM APIs.
@@ -162,7 +163,7 @@ class Boems {
 	private static def handleEReference(EObject eObject, EReference ref, Map<String, EObject> ids, String prefix) {
 		var Collection<InternalEObject> values;
 		if (ref.isMany) {
-			values = (eObject.eGet(ref, false) as InternalEList<InternalEObject>).basicList
+			values = new ArrayList((eObject.eGet(ref, false) as InternalEList<InternalEObject>).basicList)
 		} else {
 			values = Collections.singleton(eObject.eGet(ref, false) as InternalEObject)
 		}
